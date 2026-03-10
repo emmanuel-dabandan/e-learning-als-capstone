@@ -1,9 +1,8 @@
-import './App.css';
-import Auth from './pages/Auth'; // Importing your new page
+import Auth from './pages/Auth';
 
 function App() {
   return (
-    <div>
+    <div className="App">
       <Auth />
     </div>
   );
