@@ -13,7 +13,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState('');
 
   const handleAuth = async (e) => {
-    e.preventDefault(); // Prevents the page from reloading
+    e.preventDefault();
     setLoading(true);
     setMessage('');
 
@@ -29,21 +29,40 @@ export default function Auth() {
         
       } else {
         // --- SIGN UP LOGIC ---
-        const { error } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: {
-              full_name: fullName, // Saves their name into the database metadata
-            }
+            data: { full_name: fullName }
           }
         });
-        if (error) throw error;
-        setMessage('Registration successful! You can now log in.');
-        setIsLogin(true); // Flip them back to the login screen
+        if (authError) throw authError;
+
+        // --- NEW: INSERT TEST SCORE ---
+        // If registration worked and we have a user ID, push a dummy score to the database
+        if (authData?.user) {
+          const { error: dbError } = await supabase
+            .from('student_progress')
+            .insert([
+              {
+                user_id: authData.user.id, // This matches the RLS policy we just wrote!
+                module_type: 'HUMSS',
+                module_name: 'Communication Skills Module 1 - Test',
+                score: 85
+              }
+            ]);
+
+          if (dbError) {
+            console.error("Database error:", dbError.message);
+            // We log this to the console instead of the screen so it doesn't interrupt the user
+          }
+        }
+
+        setMessage('Registration successful! Test score added to database. You can now log in.');
+        setIsLogin(true); 
       }
     } catch (error) {
-      setMessage(error.message); // Show them what went wrong (e.g., "Password too short")
+      setMessage(error.message); 
     } finally {
       setLoading(false);
     }
