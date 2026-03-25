@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { db } from '../services/offline-db';
 import './Auth.css'; 
 
 export default function Auth() {
@@ -68,6 +69,22 @@ export default function Auth() {
     }
   };
 
+  const handleOfflineTest = async () => {
+    try {
+      await db.modules.add({
+        id: 'humss-001',
+        module_type: 'HUMSS',
+        title: 'Communication Skills - Module 1',
+        content: 'This is the offline reading text for the ALS communication module. It works without Wi-Fi!',
+        updated_at: new Date().toISOString()
+      });
+      alert('Success! Module saved to offline memory.');
+    } catch (error) {
+      console.error('Error saving offline:', error);
+      alert('Whoops, that module is already saved!'); // Dexie prevents duplicate IDs
+    }
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -125,6 +142,21 @@ export default function Auth() {
             </span>
           </p>
         </div>
+        <hr style={{ margin: '20px 0', border: '0.5px solid #ddd' }} />
+        <button 
+          onClick={handleOfflineTest} 
+          style={{ 
+            width: '100%', 
+            padding: '10px', 
+            backgroundColor: '#6c757d', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer' 
+          }}
+        >
+          ⚙️ Test Offline Storage
+        </button>
       </div>
     </div>
   );
