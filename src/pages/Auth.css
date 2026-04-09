@@ -1,89 +1,394 @@
-/* src/pages/Auth.css */
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f4f7f6;
+body {
+  margin: 0;
 }
 
+/* Base Layout */
+.app-container {
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #F8F9FA; /* Soft off-white background */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Header & App Bar */
+.app-header {
+  background: linear-gradient(180deg, #1A60B3 0%, #154D90 100%); 
+  color: white;
+  text-align: center;
+  padding: 25px 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.app-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+}
+
+.app-header p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Status Bar */
+.status-bar {
+  background-color: #FFFFFF; 
+  width: 100%;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #333333;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-text strong {
+  font-weight: 700;
+  color: #000000;
+}
+
+/* --- SPLIT LAYOUT STYLES --- */
+.split-layout {
+  display: flex;
+  flex: 1; 
+  width: 100%;
+  max-width: 1000px; /* Tightened slightly so the merged card looks cohesive */
+  margin: 0 auto;
+  align-items: stretch; /* Forces both columns to share the exact same height */
+  justify-content: center;
+  gap: 0; /* Set to 0 so your left and right border-radiuses touch perfectly! */
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.layout-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end; 
+  align-items: stretch; /* Allows the card to stretch dynamically */
+}
+
+.layout-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start; 
+  align-items: stretch; /* Allows the image to stretch and match the left side */
+}
+
+/* Main Card */
 .auth-card {
   background: white;
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  padding: 30px 25px;
+  margin-top: 0;
+  box-shadow: -5px 10px 25px rgba(0,0,0,0.08); /* Adjusted shadow to look good on a merged card */
+  box-sizing: border-box;
+  transition: all 0.4s ease-in-out; /* Smooth animation for resizing */
+}
+
+.card-header {
   text-align: center;
+  margin-bottom: 25px;
 }
 
-.auth-card h2 {
-  margin-bottom: 1.5rem;
-  color: #2c3e50;
+.card-header h2 {
+  color: #1A237E;
+  font-size: 24px;
+  margin: 0 0 8px 0;
 }
 
+.card-header p {
+  color: #546E7A;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Form Elements */
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
+  gap: 18px;
 }
 
 .input-group label {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
 }
 
-.input-group input {
-  padding: 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.primary-btn {
-  background-color: #3498db;
-  color: white;
-  padding: 0.8rem;
+.input-icon {
+  position: absolute;
+  left: 12px;
+  color: #1565C0;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 12px 40px; 
+  border: 1.5px solid #90CAF9;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-wrapper input:focus {
+  border-color: #1565C0;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-weight: bold;
+  color: #1565C0;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
-  margin-top: 0.5rem;
+  padding: 0;
 }
 
-.primary-btn:hover {
-  background-color: #2980b9;
+/* Actions Row */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
 }
 
-.auth-toggle {
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
-}
-
-.toggle-link {
-  color: #3498db;
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #333;
   cursor: pointer;
-  font-weight: bold;
 }
 
-.toggle-link:hover {
+.forgot-password {
+  color: #1565C0;
   text-decoration: underline;
+  font-weight: 500;
 }
-.auth-message {
-  background-color: #e2f0d9;
-  color: #2e7d32;
+
+/* Login Button */
+.login-btn {
+  background-color: #1565C0;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+  background-color: #0D47A1;
+}
+
+.login-btn:disabled {
+  background-color: #90CAF9;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 25px 0;
+  color: #90CAF9;
+  font-size: 12px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #E3F2FD;
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+/* Toggle Link */
+.toggle-auth {
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #1565C0;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 5px;
+}
+
+/* Alerts */
+.alert {
   padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.alert-success { background-color: #E8F5E9; color: #2E7D32; }
+.alert-error { background-color: #FFEBEE; color: #C62828; }
+
+/* Styling for the temporary image placeholder */
+.image-placeholder {
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  background-color: #E9ECEF; 
+  border: 2px dashed #ADB5BD; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #495057; 
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Styling for the actual login photo */
+.hero-image {
+  width: 100%;
+  max-width: 500px;
+  height: 100%; /* Locks the image to the exact height of the form */
+  min-height: 420px; /* Safety fallback */
+  object-fit: cover; 
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 5px 10px 25px rgba(0,0,0,0.08); /* Shadow on the right side */
+  transition: all 0.4s ease-in-out; /* Smooth animation */
+}
+
+/* Footer */
+.app-footer {
+  margin-top: auto;
+  padding: 20px;
+  text-align: center;
+  color: #495057; 
+}
+
+.logos-placeholder {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
   font-weight: bold;
+  font-size: 18px;
+  color: #1A237E; 
+}
+
+.version-text {
+  font-size: 11px;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Mobile Responsiveness: Stack them on smaller screens */
+@media (max-width: 850px) {
+  .split-layout {
+    flex-direction: column;
+    gap: 20px; /* Puts a gap back in if they stack */
+    padding: 20px; 
+  }
+  
+  .layout-left {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .auth-card {
+    border-radius: 16px; /* Restores all rounded corners on mobile */
+  }
+
+  /* HIDES THE IMAGE COMPLETELY ON PHONES */
+  .layout-right {
+    display: none; 
+  }
+}
+
+/* Header & App Bar */
+.app-header {
+  background: linear-gradient(180deg, #1A60B3 0%, #154D90 100%); 
+  color: white;
+  padding: 20px 5%; /* Uses percentage so it looks good on both wide monitors and phones */
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-start; /* Aligns everything to the left */
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Adds space between the logo and the text */
+}
+
+.header-logo {
+  width: 70px; /* Adjust this number to make the logo bigger or smaller */
+  height: 70px;
+  object-fit: contain;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left; /* Forces the text itself to align left */
+}
+
+.header-text h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.header-text p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.9;
 }

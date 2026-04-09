@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { db } from '../services/offline-db';
-import './Auth.css'; 
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
+import loginImage from '../assets/HS1.jpg'; 
+import logoImage from '../assets/AlsLogo.png'; 
+import './Auth.css';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(''); // To show success or error alerts
+  const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Form input states
   const [email, setEmail] = useState('');
@@ -20,46 +24,26 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        // --- LOGIN LOGIC ---
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setMessage('Login successful!');
-        
       } else {
-        // --- SIGN UP LOGIC ---
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: { full_name: fullName }
-          }
+          options: { data: { full_name: fullName } }
         });
         if (authError) throw authError;
 
-        // --- NEW: INSERT TEST SCORE ---
-        // If registration worked and we have a user ID, push a dummy score to the database
         if (authData?.user) {
-          const { error: dbError } = await supabase
-            .from('student_progress')
-            .insert([
-              {
-                user_id: authData.user.id, // This matches the RLS policy we just wrote!
-                module_type: 'HUMSS',
-                module_name: 'Communication Skills Module 1 - Test',
-                score: 85
-              }
-            ]);
-
-          if (dbError) {
-            console.error("Database error:", dbError.message);
-            // We log this to the console instead of the screen so it doesn't interrupt the user
-          }
+          await supabase.from('student_progress').insert([{
+            user_id: authData.user.id,
+            module_type: 'HUMSS',
+            module_name: 'Communication Skills Module 1 - Test',
+            score: 85
+          }]);
         }
-
-        setMessage('Registration successful! Test score added to database. You can now log in.');
+        setMessage('Registration successful! You can now log in.');
         setIsLogin(true); 
       }
     } catch (error) {
@@ -69,95 +53,135 @@ export default function Auth() {
     }
   };
 
-  const handleOfflineTest = async () => {
-    try {
-      await db.modules.add({
-        id: 'humss-001',
-        module_type: 'HUMSS',
-        title: 'Communication Skills - Module 1',
-        content: 'This is the offline reading text for the ALS communication module. It works without Wi-Fi!',
-        updated_at: new Date().toISOString()
-      });
-      alert('Success! Module saved to offline memory.');
-    } catch (error) {
-      console.error('Error saving offline:', error);
-      alert('Whoops, that module is already saved!'); // Dexie prevents duplicate IDs
-    }
-  };
-
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>{isLogin ? 'ALS Portal Login' : 'Create an Account'}</h2>
-        
-        {/* Display success or error messages */}
-        {message && <p className="auth-message">{message}</p>}
-        
-        <form className="auth-form" onSubmit={handleAuth}>
-          {!isLogin && (
-            <div className="input-group">
-              <label>Full Name</label>
-              <input 
-                type="text" 
-                placeholder="Juan Dela Cruz" 
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required={!isLogin} 
-              />
-            </div>
-          )}
-
-          <div className="input-group">
-            <label>Email</label>
-            <input 
-              type="email" 
-              placeholder="student@example.com" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
+    <div className="app-container">
+      {/* Top App Bar */}
+      <header className="app-header">
+        <div className="header-brand">
+          <img src={logoImage} alt="ALS Logo" className="header-logo" />
+          <div className="header-text">
+            <h1>ALS Philippines</h1>
+            <p>Offline Learning Portal</p>
           </div>
-
-          <div className="input-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-          </div>
-
-          <button type="submit" className="primary-btn" disabled={loading}>
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
-          </button>
-        </form>
-
-        <div className="auth-toggle">
-          <p>
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <span onClick={() => { setIsLogin(!isLogin); setMessage(''); }} className="toggle-link">
-              {isLogin ? 'Register here' : 'Login here'}
-            </span>
-          </p>
         </div>
-        <hr style={{ margin: '20px 0', border: '0.5px solid #ddd' }} />
-        <button 
-          onClick={handleOfflineTest} 
-          style={{ 
-            width: '100%', 
-            padding: '10px', 
-            backgroundColor: '#6c757d', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px', 
-            cursor: 'pointer' 
-          }}
-        >
-          ⚙️ Test Offline Storage
-        </button>
+      </header>
+
+
+      {/* --- NEW SPLIT LAYOUT WRAPPER --- */}
+      <div className="split-layout">
+        
+        {/* LEFT SIDE: Login Box */}
+        <div className="layout-left">
+          <div className="auth-card">
+            <div className="card-header">
+              <h2>{isLogin ? 'Welcome!' : 'Create Account'}</h2>
+              <p>{isLogin ? 'Log in to access your ALS modules' : 'Sign up to start learning offline'}</p>
+            </div>
+
+            {message && <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-error'}`}>{message}</div>}
+
+            <form onSubmit={handleAuth} className="auth-form">
+              {!isLogin && (
+                <div className="input-group">
+                  <label>Full Name</label>
+                  <div className="input-wrapper">
+                    <User className="input-icon" size={20} />
+                    <input 
+                      type="text" 
+                      placeholder="Juan Dela Cruz" 
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={!isLogin} 
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="input-group">
+                <label>{isLogin ? 'Username or Email' : 'Email'}</label>
+                <div className="input-wrapper">
+                  <User className="input-icon" size={20} />
+                  <input 
+                    type="email" 
+                    placeholder="Enter your Username/Email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label>Password</label>
+                <div className="input-wrapper">
+                  <Lock className="input-icon" size={20} />
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="••••••••" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                  />
+                  <button 
+                    type="button" 
+                    className="toggle-password"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {isLogin && (
+                <div className="form-actions">
+                  <label className="remember-me">
+                    <input type="checkbox" />
+                    <span>Remember Me</span>
+                  </label>
+                  <a href="#" className="forgot-password">Forgot Password?</a>
+                </div>
+              )}
+
+              <button type="submit" className="login-btn" disabled={loading}>
+                {loading ? 'Processing...' : (isLogin ? 'LOGIN' : 'SIGN UP')}
+              </button>
+            </form>
+
+            <div className="divider">
+              <span>OR</span>
+            </div>
+
+            <div className="toggle-auth">
+              <p>
+                {isLogin ? "New to ALS? Create an account." : "Already have an account?"}
+              </p>
+              <button className="toggle-btn" onClick={() => { setIsLogin(!isLogin); setMessage(''); }}>
+                {isLogin ? 'Sign Up ' : 'Log In '}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT SIDE: Image Placeholder */}
+        <div className="layout-right">
+          <img 
+            src={loginImage} 
+            alt="ALS Student Learning" 
+            className="hero-image" 
+          />
+        </div>
+
       </div>
+      {/* --- END SPLIT LAYOUT --- */}
+
+      {/* Footer Branding */}
+      <footer className="app-footer">
+        <div className="logos-placeholder">
+          <span className="deped-logo">DepED</span>
+        </div>
+        <p className="version-text">v1.3.1 | Offline mode available after first sync.</p>
+      </footer>
     </div>
   );
 }
